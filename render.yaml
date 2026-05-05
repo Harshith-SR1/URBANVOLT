@@ -9,7 +9,3 @@ services:
     envVars:
       - key: PORT
         value: 8000
-    disk:
-      name: urbanvolt-data
-      mountPath: /app/data
-      sizeGB: 1
