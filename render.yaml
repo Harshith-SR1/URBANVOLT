@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: urbanvolt-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8000
+    disk:
+      name: urbanvolt-data
+      mountPath: /app/data
+      sizeGB: 1

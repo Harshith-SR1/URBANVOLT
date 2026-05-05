@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: urbanvolt-db
+    environment:
+      POSTGRES_DB: urbanvolt
+      POSTGRES_USER: urbanvolt
+      POSTGRES_PASSWORD: urbanvolt
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U urbanvolt"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: urbanvolt-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: urbanvolt-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://urbanvolt:urbanvolt@postgres:5432/urbanvolt
+      REDIS_URL: redis://redis:6379/0
+      DEBUG: "false"
+      ENABLE_SIMULATION: "true"
+    depends_on:
+      - postgres
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: urbanvolt-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://backend:8000/api/v1
+      VITE_WS_URL: ws://backend:8000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: urbanvolt-network
