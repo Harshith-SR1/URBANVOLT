@@ -89,13 +89,14 @@ app = FastAPI(
 app.include_router(auth_router)
 
 
-# CORS middleware
+# Aggressive CORS for production demo
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
