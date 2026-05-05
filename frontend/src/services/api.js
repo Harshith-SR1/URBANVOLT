@@ -2,9 +2,12 @@ import axios from 'axios'
 
 let API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1'
 
-// Auto-fix: Ensure the URL ends with /api/v1
-if (API_BASE_URL && !API_BASE_URL.includes('/api/v1')) {
+// Auto-fix: Ensure the URL ends with /api/v1 and uses HTTPS for production
+if (API_BASE_URL && !API_BASE_URL.includes('/api/v1') && !API_BASE_URL.includes('localhost') && !API_BASE_URL.includes('127.0.0.1')) {
   API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api/v1'
+  if (API_BASE_URL.startsWith('http://') && !API_BASE_URL.includes('localhost')) {
+    API_BASE_URL = API_BASE_URL.replace('http://', 'https://')
+  }
 }
 
 const apiClient = axios.create({
